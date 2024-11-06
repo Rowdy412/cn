@@ -1,0 +1,45 @@
+TCP CLIENT 
+
+
+
+
+
+import socket
+import os
+
+# Client configuration
+SERVER_IP = "127.0.0.1"  # Use the server's IP address
+PORT = 8080
+BUFFER_SIZE = 1024
+FILE_TO_SEND = "sample_file.txt"  # File path to send
+
+def start_client():
+    # Create a TCP socket
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((SERVER_IP, PORT))
+    print(f"Connected to server at {SERVER_IP}:{PORT}")
+
+    # Step 1: Exchange Hello messages
+    server_message = client_socket.recv(BUFFER_SIZE).decode()
+    print("Server:", server_message)
+    client_socket.sendall(b"Hello from client!")
+
+    # Step 2: Send file
+    if os.path.exists(FILE_TO_SEND):
+        with open(FILE_TO_SEND, "rb") as file:
+            print(f"Sending '{FILE_TO_SEND}' to the server...")
+            while True:
+                bytes_read = file.read(BUFFER_SIZE)
+                if not bytes_read:    # if end of file, break
+                    break
+                client_socket.sendall(bytes_read)
+        print("File sent successfully.")
+    else:
+        print(f"File '{FILE_TO_SEND}' does not exist.")
+
+    # Close the connection
+    client_socket.close()
+    print("Connection closed.")
+
+if _name_ == "_main_":
+    start_client()

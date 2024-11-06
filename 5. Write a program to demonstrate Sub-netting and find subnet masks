@@ -1,0 +1,58 @@
+import ipaddress
+
+def subnetting(ip_address, subnet_count=None, host_count=None):
+    try:
+        # Parse IP address and determine the class
+        network = ipaddress.IPv4Network(ip_address, strict=False)
+        class_type = network.prefixlen
+        
+        # Calculate based on number of subnets
+        if subnet_count:
+            new_prefix = network.prefixlen + (subnet_count - 1).bit_length()
+            subnets = list(network.subnets(new_prefix=new_prefix))
+            subnet_mask = subnets[0].netmask
+            
+            print(f"Original IP Address: {ip_address}")
+            print(f"Class: {class_type}")
+            print(f"Subnet Mask: {subnet_mask}")
+            print(f"Number of Subnets: {len(subnets)}\n")
+            
+            for i, subnet in enumerate(subnets):
+                print(f"Subnet {i+1}: {subnet}")
+                print(f"  Network Address: {subnet.network_address}")
+                print(f"  Broadcast Address: {subnet.broadcast_address}")
+                print(f"  Usable Hosts: {subnet.num_addresses - 2}")
+                print()
+                
+        # Calculate based on number of hosts
+        elif host_count:
+            new_prefix = 32 - (host_count + 2 - 1).bit_length()
+            subnets = list(network.subnets(new_prefix=new_prefix))
+            subnet_mask = subnets[0].netmask
+            
+            print(f"Original IP Address: {ip_address}")
+            print(f"Class: {class_type}")
+            print(f"Subnet Mask: {subnet_mask}")
+            print(f"Hosts per Subnet: {subnets[0].num_addresses - 2}\n")
+            
+            for i, subnet in enumerate(subnets):
+                print(f"Subnet {i+1}: {subnet}")
+                print(f"  Network Address: {subnet.network_address}")
+                print(f"  Broadcast Address: {subnet.broadcast_address}")
+                print(f"  Usable Hosts: {subnet.num_addresses - 2}")
+                print()
+                
+        else:
+            print("Please specify either subnet_count or host_count.")
+    
+    except ValueError as e:
+        print(f"Error: {e}")
+
+# Example Usage
+# Uncomment one of the following to test
+
+# Case 1: Calculate based on number of subnets
+subnetting("192.168.1.0/24", subnet_count=4)
+
+# Case 2: Calculate based on number of hosts per subnet
+# subnetting("192.168.1.0/24", host_count=30)

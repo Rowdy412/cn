@@ -1,0 +1,41 @@
+import socket
+import os
+
+# Server configuration
+PORT = 8080
+BUFFER_SIZE = 1024
+SAVE_FILE_NAME = "received_file.txt"
+
+def start_server():
+    # Create a TCP socket
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(("0.0.0.0", PORT))
+    server_socket.listen(1)
+    print(f"Server is listening on port {PORT}")
+
+    # Accept a client connection
+    conn, addr = server_socket.accept()
+    print(f"Connected to client: {addr}")
+
+    # Step 1: Exchange Hello messages
+    conn.sendall(b"Hello from server!")
+    client_message = conn.recv(BUFFER_SIZE).decode()
+    print("Client:", client_message)
+
+    # Step 2: Receive file
+    with open(SAVE_FILE_NAME, "wb") as file:
+        print("Receiving file...")
+        while True:
+            bytes_read = conn.recv(BUFFER_SIZE)
+            if not bytes_read:    # if no more data, file is fully received
+                break
+            file.write(bytes_read)
+        print(f"File received and saved as '{SAVE_FILE_NAME}'")
+
+    # Close the connection
+    conn.close()
+    server_socket.close()
+    print("Connection closed.")
+
+if _name_ == "_main_":
+    start_server()
